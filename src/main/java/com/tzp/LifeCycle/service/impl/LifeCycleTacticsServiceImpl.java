@@ -27,7 +27,7 @@ import java.util.Map;
 public class LifeCycleTacticsServiceImpl implements LifeCycleTacticsService {
 
     @Autowired
-    private LifeCycleTacticsMapper lifeCycleChangeMapper;
+    private LifeCycleTacticsMapper lifeCycleTacticsMapper;
 
     @Autowired
     private QuartzConfig scheduler;
@@ -40,7 +40,7 @@ public class LifeCycleTacticsServiceImpl implements LifeCycleTacticsService {
      */
     @Override
     public LifeCycleTactics queryById(Serializable id) {
-        return lifeCycleChangeMapper.selectById(id);
+        return lifeCycleTacticsMapper.selectById(id);
     }
 
     /**
@@ -53,7 +53,7 @@ public class LifeCycleTacticsServiceImpl implements LifeCycleTacticsService {
     public LifeCycleTactics queryBySchedulerId(String schedulerId) {
         QueryWrapper<LifeCycleTactics> wrapper = new QueryWrapper<>(null);
         wrapper.eq("scheduler_id", schedulerId);
-        return lifeCycleChangeMapper.selectOne(wrapper);
+        return lifeCycleTacticsMapper.selectOne(wrapper);
     }
 
     /**
@@ -72,7 +72,7 @@ public class LifeCycleTacticsServiceImpl implements LifeCycleTacticsService {
         if (dto.getQueryAllEqualFields() != null && !dto.getQueryAllEqualFields().isEmpty()) {
             wrapper.allEq(dto.getQueryAllEqualFields());
         }
-        return lifeCycleChangeMapper.selectPage(page, wrapper);
+        return lifeCycleTacticsMapper.selectPage(page, wrapper);
     }
 
     /**
@@ -84,7 +84,7 @@ public class LifeCycleTacticsServiceImpl implements LifeCycleTacticsService {
     @Override
     public Integer createOne(LifeCycleTactics t) {
         // 先向数据库添加数据
-        int successNum = lifeCycleChangeMapper.insert(t);
+        int successNum = lifeCycleTacticsMapper.insert(t);
         try {
             // 添加完成之后创建一个定时任务；根据提供的执行时间时间戳，执行一次
             scheduler.createJobAtTimestamp(t.getSchedulerId(), t.getExecutionTime());
@@ -117,7 +117,7 @@ public class LifeCycleTacticsServiceImpl implements LifeCycleTacticsService {
         // 因为数据库字段和map对应不上，用这个算法替换一下key
         map = LifeStringUtil.convertMapKeys(map);
         // 利用转换好的map删除对应数据
-        int successNum = lifeCycleChangeMapper.deleteByMap(map);
+        int successNum = lifeCycleTacticsMapper.deleteByMap(map);
         try {
             scheduler.deleteJob(map.get("scheduler_id").toString());
         } catch (SchedulerException e) {
@@ -135,7 +135,7 @@ public class LifeCycleTacticsServiceImpl implements LifeCycleTacticsService {
      */
     @Override
     public Integer updateOne(LifeCycleTactics t) {
-        int successNum = lifeCycleChangeMapper.updateById(t);
+        int successNum = lifeCycleTacticsMapper.updateById(t);
         try {
             // 销毁原先的定时任务，创建新的定时任务
             scheduler.deleteJob(t.getSchedulerId());

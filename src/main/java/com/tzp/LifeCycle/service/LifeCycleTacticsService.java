@@ -36,6 +36,8 @@ public interface LifeCycleTacticsService {
      */
     Page<LifeCycleTactics> queryList(DataBaseQueryDto dto);
 
+//    List<String> querySchedulerIdList();
+
     /**
      * 添加一条数据
      *

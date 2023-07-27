@@ -89,10 +89,11 @@ public class TestController {
         tactics.setExecutionTime(nowTime + tactics.getDeadline());
         tactics.setAccessAddress(tableName);
         tactics.setDetailedData(JSON.toJSONString(lifeUpdateTactics.getTObject()));
-        tactics.setDataObjectType(clazz.getSimpleName());
+        // 往里添加的时候，截掉前面的“class ”这几个字符，有个空格
+        tactics.setDataObjectType(clazz.toString().substring(6));
         // 获取表主键列在数据库表的列名；String keyColumn = SqlHelper.table(LifeTest.class).getKeyColumn()
         tactics.setPrimaryKeyName(SqlHelper.table(clazz).getKeyColumn());
-        tactics.setPrimaryKeyType(SqlHelper.table(clazz).getKeyType().getSimpleName());
+        tactics.setPrimaryKeyType(SqlHelper.table(clazz).getKeyType().toString().substring(6));
         tactics.setPrimaryKeyValue(keyValue);
         // 第二步，联立是否存在和周期是否为-1的情况（4种情况）分别做不同的操作
         if (lifeCycleTactics != null && tactics.getDeadline() == -1L) {
@@ -104,7 +105,6 @@ public class TestController {
             if ( tactics.getTacticsType() == 2 ) {
                 tactics.setExecutionTime(lifeCycleTactics.getCreateTime() + tactics.getDeadline());
             }
-            System.out.println(tactics.getDeadline());
             lifeCycleTacticsService.updateOne(tactics);
         } else if (lifeCycleTactics == null && tactics.getDeadline() != -1L) {
             // 不存在策略，但是修改的策略周期不为-1，添加策略

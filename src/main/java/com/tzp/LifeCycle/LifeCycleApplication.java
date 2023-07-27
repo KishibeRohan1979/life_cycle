@@ -4,16 +4,19 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * 启动类
  * EnableAspectJAutoProxy 启用切面功能
+ * EnableAsync 启用线程池
  *
  * @author kangxudong
  */
 @SpringBootApplication
 @MapperScan("com.tzp.LifeCycle.mapper")
 @EnableAspectJAutoProxy
+@EnableAsync
 public class LifeCycleApplication {
 
     public static void main(String[] args) {
