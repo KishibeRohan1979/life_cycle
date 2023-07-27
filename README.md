@@ -1,2 +1,9 @@
 # life_cycle
-数据生命周期管理；data life cycle；说白一点其实就是数据定时删除清理；Data is scheduled to be purged
+
+数据生命周期管理
+
+目前只实现了数据库（MySQL）表里的行数据的定时任务，删除正在写，当然整个框架已经搭建完毕了
+
+使用的是mybatis-plus
+
+如果需要修改、添加、删除数据行的策略，对某个数据行的数据进行修改就行。
