@@ -1,6 +1,5 @@
 package com.tzp.LifeCycle.aop;
 
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.tzp.LifeCycle.entity.JdbcRequestInfo;
@@ -23,7 +22,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.util.Properties;
@@ -40,7 +38,7 @@ import java.util.Properties;
 @Intercepts({
         @Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class})
 })
-public class DataBaseRequestAspect implements Interceptor {
+public class DataBaseDeleteAspect implements Interceptor {
 
     @Autowired
     private LifeCycleTacticsService lifeCycleChangeService;
@@ -48,9 +46,9 @@ public class DataBaseRequestAspect implements Interceptor {
     private static final ThreadLocal<JdbcRequestInfo> THREAD_LOCAL = new ThreadLocal<>();
 
     /**
-     * 在使用 @DataBaseRequest 注解的方法执行后执行，用于获取拦截器中保存的数据库请求信息。
+     * 在使用 @DataBaseDelete 注解的方法执行后执行，用于获取拦截器中保存的数据库请求信息。
      */
-    @After("@annotation(com.tzp.LifeCycle.aop.annotation.DataBaseRequest)")
+    @After("@annotation(com.tzp.LifeCycle.aop.annotation.DataBaseDelete)")
     private void someOtherMethod() {
         JdbcRequestInfo jdbcRequestInfo = THREAD_LOCAL.get();
         if (jdbcRequestInfo != null) {
@@ -58,16 +56,10 @@ public class DataBaseRequestAspect implements Interceptor {
             String tableName = jdbcRequestInfo.getTableName();
             // 请求的数据
             Object requestObject = jdbcRequestInfo.getRequestObject();
-            // 对象的原类型；.getSimpleName()简写；toString()详细
-            String objectClassType = requestObject.getClass().getSimpleName();
-            // 转json字符串
-            String requestObjectStr = JSON.toJSONString(requestObject);
             // 发送请求的类型
             DataAccessType jdbcType = jdbcRequestInfo.getJdbcType();
             // 请求表的主键
             String primaryKey = "";
-            // 请求表主键的类型
-            String primaryKeyType = "";
             // 请求表主键的值
             String primaryKeyValue = "";
 
@@ -79,9 +71,6 @@ public class DataBaseRequestAspect implements Interceptor {
                     // 利用Java反射获取请求数据的属性
                     Class<?> requestClass = requestObject.getClass();
                     try {
-                        Field primaryKeyField = requestClass.getDeclaredField(primaryKey);
-                        Class<?> attributeType = primaryKeyField.getType();
-                        primaryKeyType = attributeType.getSimpleName();
                         // 获取get...（get属性）方法
                         Method getNameMethod = requestClass.getMethod("get" + LifeStringUtil.capitalizeFirstLetter(primaryKey));
                         // 调用get...（get属性）方法
@@ -97,8 +86,6 @@ public class DataBaseRequestAspect implements Interceptor {
             } else {
                 log.error("找不到表 " + tableName + " 的元数据信息。");
             }
-
-            long nowTime = System.currentTimeMillis();
 
             // 定时任务id
             String schedulerId = tableName + "+" + primaryKey + "+" + primaryKeyValue;
