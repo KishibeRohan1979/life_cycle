@@ -5,9 +5,7 @@ import com.tzp.LifeCycle.aop.annotation.DataBaseDelete;
 import com.tzp.LifeCycle.aop.annotation.DataBaseUpdate;
 import com.tzp.LifeCycle.dto.DataBaseQueryDto;
 import com.tzp.LifeCycle.dto.DataBaseUpdateDto;
-import com.tzp.LifeCycle.entity.LifeCycleTactics;
 import com.tzp.LifeCycle.entity.LifeTest;
-import com.tzp.LifeCycle.service.LifeCycleTacticsService;
 import com.tzp.LifeCycle.service.LifeTestService;
 import com.tzp.LifeCycle.util.MsgUtil;
 import io.swagger.annotations.Api;
@@ -27,16 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class TestController {
 
     @Autowired
-    LifeTestService lifeCycleService;
-
-    @Autowired
-    LifeCycleTacticsService lifeCycleTacticsService;
-
-    @ApiOperation("要测试的接口")
-    @GetMapping("/testT")
-    public MsgUtil<Object> test(String indexName) {
-        return MsgUtil.success(indexName);
-    }
+    private LifeTestService lifeCycleService;
 
     @ApiOperation("添加一条数据")
     @PostMapping("/addLifeTest")
@@ -84,10 +73,4 @@ public class TestController {
         return MsgUtil.success();
     }
 
-    @ApiOperation("修改生命周期策略")
-    @PostMapping("/updateLifeTactics")
-    public MsgUtil<Object> updateLifeTactics(@RequestBody LifeCycleTactics lifeCycleTactics) {
-        lifeCycleTacticsService.updateOne(lifeCycleTactics);
-        return MsgUtil.success("修改成功");
-    }
 }
