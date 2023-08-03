@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.tzp.LifeCycle.dto.DataBaseUpdateDto;
 import com.tzp.LifeCycle.entity.LifeCycleTactics;
-import com.tzp.LifeCycle.entity.LifeTest;
 import com.tzp.LifeCycle.service.LifeCycleTacticsService;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -17,12 +16,12 @@ import org.springframework.stereotype.Component;
 /**
  * 执行数据库行数据更新完毕之后，策略的更新方法
  *
- * @author kangxudong
+ * @author kangxvdong
  */
 @Slf4j
 @Aspect
 @Component
-public class DataBaseUpdateAspect {
+public class DataBaseUpdateAspect<T> {
 
     @Autowired
     private LifeCycleTacticsService lifeCycleTacticsService;
@@ -35,7 +34,7 @@ public class DataBaseUpdateAspect {
     public void afterDataBaseUpdate(JoinPoint joinPoint) {
         // 获取原方法的参数
         Object[] args = joinPoint.getArgs();
-        DataBaseUpdateDto<LifeTest> lifeUpdateTactics = (DataBaseUpdateDto<LifeTest>) args[0];
+        DataBaseUpdateDto<T> lifeUpdateTactics = (DataBaseUpdateDto<T>) args[0];
         // 策略类用来直接添加、更新、删除策略
         // 第一步，查看对应策略是否存在
         // 这一步是利用DataBaseUpdateDto<T>来获取T对应类映射数据库种的表名（使用的是mybatis-plus插件中的方法）

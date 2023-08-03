@@ -15,7 +15,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @author kangxudong
+ * @author kangxvdong
  */
 
 @Slf4j
@@ -47,8 +47,7 @@ public class LifeTestServiceImpl implements LifeTestService {
         Page<LifeTest> page = new Page<>(dto.getPageNum(), dto.getPageSize());
         QueryWrapper<LifeTest> wrapper = new QueryWrapper<>(null);
         // 拼接显示字段的方法
-        String showFieldsStr = LifeStringUtil.getSelectFields(dto.getShowFields());
-        wrapper.select(showFieldsStr);
+        wrapper.select("distinct *");
         if ( dto.getQueryAllEqualFields() != null && !dto.getQueryAllEqualFields().isEmpty() ) {
             wrapper.allEq(dto.getQueryAllEqualFields());
         }

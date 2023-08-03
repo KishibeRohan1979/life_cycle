@@ -11,7 +11,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- * @author kangxudong
+ * @author kangxvdong
  */
 @Configuration
 @EnableAsync

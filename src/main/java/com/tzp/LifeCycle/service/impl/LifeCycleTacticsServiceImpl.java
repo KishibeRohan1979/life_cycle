@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author kangxudong
+ * @author kangxvdong
  */
 
 @Slf4j
@@ -67,8 +67,7 @@ public class LifeCycleTacticsServiceImpl implements LifeCycleTacticsService {
         Page<LifeCycleTactics> page = new Page<>(dto.getPageNum(), dto.getPageSize());
         QueryWrapper<LifeCycleTactics> wrapper = new QueryWrapper<>(null);
         // 拼接显示字段的方法
-        String showFieldsStr = LifeStringUtil.getSelectFields(dto.getShowFields());
-        wrapper.select(showFieldsStr);
+        wrapper.select("distinct *");
         if (dto.getQueryAllEqualFields() != null && !dto.getQueryAllEqualFields().isEmpty()) {
             wrapper.allEq(dto.getQueryAllEqualFields());
         }

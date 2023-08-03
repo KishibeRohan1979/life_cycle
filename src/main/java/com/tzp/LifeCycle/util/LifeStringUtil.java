@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * 本模块关于String类型字符串的共有方法
  *
- * @author kangxudong
+ * @author kangxvdong
  */
 public class LifeStringUtil {
 

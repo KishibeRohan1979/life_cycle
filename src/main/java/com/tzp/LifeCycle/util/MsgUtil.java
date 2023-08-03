@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * 用于向前端回复消息的类
  *
- * @author kangxudong
+ * @author kangxvdong
  * @date 2023/07/14 19:01
  */
 @Data

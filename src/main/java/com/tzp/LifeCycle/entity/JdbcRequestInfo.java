@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
  * ibatis拦截器用到的实体类；
  * 主要是用来送数据时，只能送一个对象，就把要送的数据包装在这里了
  *
- * @author kangxudong
+ * @author kangxvdong
  *
  * @NoArgsConstructor 生成一个无参数的构造方法
  * @AllArgsConstructor 生成一个全参数的构造方法

@@ -30,7 +30,7 @@ import java.util.Properties;
 /**
  * 利用ibatis框架实现拦截jdbc请求
  *
- * @author kangxuodong
+ * @author kangxvodong
  */
 @Slf4j
 @Aspect

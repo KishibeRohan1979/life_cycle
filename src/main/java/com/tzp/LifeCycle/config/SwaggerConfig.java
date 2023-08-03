@@ -16,7 +16,7 @@ import java.util.ArrayList;
 /**
  * swagger配置
  *
- * @author kangxudong
+ * @author kangxvdong
  * @date 2023/07/14 18:25
  */
 @Configuration

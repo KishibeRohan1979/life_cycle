@@ -14,7 +14,7 @@ import java.util.Set;
 /**
  * 定时任务，以及一些使用的公共方法
  *
- * @author kangxudong
+ * @author kangxvdong
  */
 @Configuration
 public class QuartzConfig {

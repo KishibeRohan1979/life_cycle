@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
  * EnableAspectJAutoProxy 启用切面功能
  * EnableAsync 启用线程池
  *
- * @author kangxudong
+ * @author kangxvdong
  */
 @SpringBootApplication
 @MapperScan("com.tzp.LifeCycle.mapper")

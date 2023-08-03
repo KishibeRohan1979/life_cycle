@@ -10,16 +10,13 @@ import java.util.Map;
  * 自定义查询类；
  * 目前还没有完全完善；之后看具体情况再改
  *
- * @author kangxudong
+ * @author kangxvdong
  */
 @Data
 public class DataBaseQueryDto {
 
     @ApiModelProperty(value = "查找与字段值相等的数据", name = "queryAllEqualFields", dataType="Map<String, Object>")
     private Map<String, Object> queryAllEqualFields;
-
-    @ApiModelProperty(value = "显示的字段列表", name = "showFields", dataType="List<String>")
-    private List<String> showFields;
 
     @ApiModelProperty(value = "主键id", name = "pageSize", dataType="Long")
     private Long pageSize;

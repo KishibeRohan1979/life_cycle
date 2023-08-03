@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @author kangxudong
+ * @author kangxvdong
  */
 public interface LifeCycleTacticsService {
 

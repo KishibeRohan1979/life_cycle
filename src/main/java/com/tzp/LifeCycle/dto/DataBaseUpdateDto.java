@@ -7,7 +7,7 @@ import lombok.Data;
 /**
  * 数据库数据更新时的类
  *
- * @author kangxudong
+ * @author kangxvdong
  */
 @Data
 public class  DataBaseUpdateDto<T> {

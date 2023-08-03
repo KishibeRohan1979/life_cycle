@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tzp.LifeCycle.config.QuartzConfig;
 import com.tzp.LifeCycle.entity.LifeCycleTactics;
 import com.tzp.LifeCycle.mapper.LifeCycleTacticsMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -15,8 +16,9 @@ import java.util.List;
 /**
  * 项目在启动的时候，读取数据库的策略，添加定时任务
  *
- * @author kangxudong
+ * @author kangxvdong
  */
+@Slf4j
 @Component
 public class QuartzApplicationRunner implements ApplicationRunner {
 
@@ -33,6 +35,8 @@ public class QuartzApplicationRunner implements ApplicationRunner {
         int pageSize = 1000;
         int currentPage = 1;
         boolean hasNextPage = true;
+
+        log.info("开始检查未完成的定时任务");
 
         while (hasNextPage) {
             // 分页查询数据
@@ -53,6 +57,8 @@ public class QuartzApplicationRunner implements ApplicationRunner {
             hasNextPage = resultPage.hasNext();
             currentPage++;
         }
+
+        log.info("检查定时任务完成");
     }
 
 }

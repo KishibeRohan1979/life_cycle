@@ -14,7 +14,7 @@ import java.io.Serializable;
 /**
  * 策略类；计划删除，与数据库访问的类
  *
- * @author kangxudong
+ * @author kangxvdong
  */
 @Data
 @NoArgsConstructor

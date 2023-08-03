@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * 当数据库的数据更新时，策略也随之更新，或创建、或更新、或删除。定时任务也随之发生改变
  *
  *
- * @author kangxudong
+ * @author kangxvdong
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

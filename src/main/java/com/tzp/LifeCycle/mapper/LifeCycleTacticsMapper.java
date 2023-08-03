@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * LifeCycleChange访问数据库的mapper
  *
- * @author kangxudong
+ * @author kangxvdong
  */
 @Mapper
 public interface LifeCycleTacticsMapper extends BaseMapper<LifeCycleTactics> {

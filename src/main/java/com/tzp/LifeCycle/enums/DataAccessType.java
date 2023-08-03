@@ -3,7 +3,7 @@ package com.tzp.LifeCycle.enums;
 /**
  * 数据增删改查的类型
  *
- * @author admin
+ * @author kangxvdong
  */
 
 public enum DataAccessType {
