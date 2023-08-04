@@ -5,6 +5,8 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 /**
+ * swagger2的配合配置，如果想要启动成功，就得加这个
+ *
  * @author kangxvdong
  */
 @Configuration

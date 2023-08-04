@@ -11,6 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author kangxvdong
  */
@@ -29,8 +32,6 @@ public class LifeCycleDataTableServiceImpl implements LifeCycleDataTableService 
      */
     @Override
     public Integer createTable(LifeCycleDataTable leCyDaTa) {
-        String fieldsToJson = JSON.toJSONString(leCyDaTa.getAllFields());
-        leCyDaTa.setAllFields(fieldsToJson);
         return lifeCycleDataTableMapper.insert(leCyDaTa);
     }
 
@@ -70,6 +71,9 @@ public class LifeCycleDataTableServiceImpl implements LifeCycleDataTableService 
     /**
      * 分页查询
      *
+     *   目前找不到在page封装前，数据库查询阶段就将json直接转化为Map的方法，但是一般分页都是在50以内
+     *   所以直接就用查询完再循环的方法
+     *
      * @param dto 查询方法
      * @return 返回分页查询结果
      */
@@ -82,7 +86,13 @@ public class LifeCycleDataTableServiceImpl implements LifeCycleDataTableService 
         if ( dto.getQueryAllEqualFields() != null && !dto.getQueryAllEqualFields().isEmpty() ) {
             wrapper.allEq(dto.getQueryAllEqualFields());
         }
-        return lifeCycleDataTableMapper.selectPage(page, wrapper);
+        Page<LifeCycleDataTable> resultPage = lifeCycleDataTableMapper.selectPage(page, wrapper);
+        List<LifeCycleDataTable> records = resultPage.getRecords();
+        for (LifeCycleDataTable life : records) {
+            life.setAllFields(JSON.parseObject(life.getAllFields().toString(), Map.class));
+        }
+        resultPage.setRecords(records);
+        return resultPage;
     }
     
 }

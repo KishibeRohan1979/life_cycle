@@ -25,7 +25,7 @@ public interface LifeCycleTacticsMapper extends BaseMapper<LifeCycleTactics> {
      * @param primaryKeyValue 主键值
      * @return 返回一个对象
      */
-    @Select("SELECT * FROM ${tableName} WHERE ${primaryKeyName} = ${primaryKeyValue}")
+    @Select("SELECT * FROM ${tableName} WHERE ${primaryKeyName} = #{primaryKeyValue}")
     Map<String, Object> selectByPrimaryKey(String tableName, String primaryKeyName, String primaryKeyValue);
 
     /**
@@ -36,7 +36,7 @@ public interface LifeCycleTacticsMapper extends BaseMapper<LifeCycleTactics> {
      * @param primaryKeyValue 主键值
      * @return 一个对象
      */
-    @Delete("DELETE FROM ${tableName} WHERE ${primaryKeyName} = ${primaryKeyValue}")
+    @Delete("DELETE FROM ${tableName} WHERE ${primaryKeyName} = #{primaryKeyValue}")
     Integer deleteByPrimaryKey(String tableName, String primaryKeyName, String primaryKeyValue);
 
 }

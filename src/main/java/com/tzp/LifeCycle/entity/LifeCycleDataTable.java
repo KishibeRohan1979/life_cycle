@@ -3,6 +3,7 @@ package com.tzp.LifeCycle.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.tzp.LifeCycle.handler.JsonToMapTypeHandler;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -20,7 +21,7 @@ public class LifeCycleDataTable implements Serializable {
     @ApiModelProperty(value = "此表主键id，存储的信息是动态、可自定义表单的表名（索引名）", name = "indexName", dataType="String")
     private String indexName;
 
-    @TableField(value = "all_fields")
+    @TableField(value = "all_fields", typeHandler = JsonToMapTypeHandler.class)
     @ApiModelProperty(value = "字段字典<字段，字段类型>", name = "allFields", dataType="Object")
     private Object allFields;
 

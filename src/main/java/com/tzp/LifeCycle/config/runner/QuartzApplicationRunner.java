@@ -11,8 +11,6 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 /**
  * 项目在启动的时候，读取数据库的策略，添加定时任务
  *
