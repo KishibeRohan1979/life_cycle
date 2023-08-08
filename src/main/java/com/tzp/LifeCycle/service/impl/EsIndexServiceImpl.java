@@ -15,6 +15,8 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 /**
  * 创建es索引的具体方法
  *
@@ -60,15 +62,20 @@ public class EsIndexServiceImpl implements EsIndexService {
      * @param indexName  索引名
      * @param jsonString json字符串
      * @return boolean是否创建成功
-     * @throws Exception 异常
      */
     @Override
-    public boolean createIndex(String indexName, String jsonString) throws Exception {
+    public boolean createIndex(String indexName, String jsonString) {
         CreateIndexRequest request = new CreateIndexRequest(indexName);
         JSONObject jsonObject  = JSON.parseObject(jsonString);
         if ( jsonObject != null && !"".equals(jsonObject.toString()) ) {
             request.source(jsonObject.toString(), XContentType.JSON);
-            CreateIndexResponse response = restHighLevelClient.indices().create(request, RequestOptions.DEFAULT);
+            CreateIndexResponse response;
+            try {
+                response = restHighLevelClient.indices().create(request, RequestOptions.DEFAULT);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
             return response.isAcknowledged();
         }
         return false;
@@ -79,11 +86,15 @@ public class EsIndexServiceImpl implements EsIndexService {
      *
      * @param indexName 索引名
      * @return boolean是否创建成功
-     * @throws Exception 异常
      */
     @Override
-    public boolean createIndex(String indexName) throws Exception {
-        return createIndex(indexName, INDEX_SET_MAP);
+    public boolean createIndex(String indexName) {
+        try {
+            return createIndex(indexName, INDEX_SET_MAP);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     /**
@@ -91,11 +102,16 @@ public class EsIndexServiceImpl implements EsIndexService {
      *
      * @param indexName 索引名
      * @return boolean 是否删除成功
-     * @throws Exception 异常
      */
     @Override
-    public boolean deleteIndex(String indexName) throws Exception {
-        AcknowledgedResponse response = restHighLevelClient.indices().delete(new DeleteIndexRequest(indexName), RequestOptions.DEFAULT);
+    public boolean deleteIndex(String indexName) {
+        AcknowledgedResponse response;
+        try {
+            response = restHighLevelClient.indices().delete(new DeleteIndexRequest(indexName), RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
         return response.isAcknowledged();
     }
 
@@ -104,11 +120,15 @@ public class EsIndexServiceImpl implements EsIndexService {
      *
      * @param indexName 索引名
      * @return - true：存在；false不存在
-     * @throws Exception 异常
      */
     @Override
-    public boolean indexExists(String indexName) throws Exception {
+    public boolean indexExists(String indexName) {
         GetIndexRequest request = new GetIndexRequest(indexName);
-        return restHighLevelClient.indices().exists(request, RequestOptions.DEFAULT);
+        try {
+            return restHighLevelClient.indices().exists(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

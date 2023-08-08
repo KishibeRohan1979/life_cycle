@@ -47,7 +47,6 @@ public class JsonToMapTypeHandler extends BaseTypeHandler<Map<String, String>> {
     @Override
     public Map<String, String> getNullableResult(ResultSet resultSet, String s) throws SQLException {
         String jsonStr = resultSet.getString(s);
-        System.out.println(jsonStr);
         return JSON.parseObject(jsonStr, mapClass);
     }
 
@@ -62,7 +61,6 @@ public class JsonToMapTypeHandler extends BaseTypeHandler<Map<String, String>> {
     @Override
     public Map<String, String> getNullableResult(ResultSet resultSet, int i) throws SQLException {
         String jsonStr = resultSet.getString(i);
-        System.out.println(jsonStr);
         return JSON.parseObject(jsonStr, mapClass);
     }
 
@@ -77,7 +75,6 @@ public class JsonToMapTypeHandler extends BaseTypeHandler<Map<String, String>> {
     @Override
     public Map<String, String> getNullableResult(CallableStatement callableStatement, int i) throws SQLException {
         String jsonStr = callableStatement.getString(i);
-        System.out.println(jsonStr);
         return JSON.parseObject(jsonStr, mapClass);
     }
 

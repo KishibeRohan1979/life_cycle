@@ -41,10 +41,10 @@ public class EsQueryDto<T> {
     private Map<String, Object> termMap;
 
     @ApiModelProperty(value = "页码", name = "pageNum", dataType="int", notes="当前页码", required=true)
-    private Integer pageNum;
+    private Long pageNum;
 
     @ApiModelProperty(value = "分页条数", name = "pageSize", dataType="int", notes="返回多少行信息", required=true)
-    private Integer pageSize;
+    private Long pageSize;
 
     @ApiModelProperty(value = "排序字段", name = "orderField")
     private String orderField;
@@ -74,11 +74,11 @@ public class EsQueryDto<T> {
         return orderType;
     }
 
-    public Integer getPageSize() {
+    public Long getPageSize() {
         return pageSize == 0 ? 10 : pageSize;
     }
 
-    public Integer getPageNum() {
+    public Long getPageNum() {
         return pageNum != 0 ? pageNum - 1 : 0;
     }
 
