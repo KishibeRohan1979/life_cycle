@@ -58,6 +58,19 @@ public class LifeCycleTacticsServiceImpl implements LifeCycleTacticsService {
     }
 
     /**
+     * 根据所有定时id查询数据
+     *
+     * @param schedulerIds 要查询对象的所有定时id
+     * @return 返回所有查询的数据
+     */
+    @Override
+    public List<LifeCycleTactics> queryBySchedulerIds(List<String> schedulerIds) {
+        QueryWrapper<LifeCycleTactics> wrapper = new QueryWrapper<>(null);
+        wrapper.in("scheduler_id", schedulerIds);
+        return lifeCycleTacticsMapper.selectList(wrapper);
+    }
+
+    /**
      * 根据字段条件模糊查询返回分页查询结果
      *
      * @param dto 要查询的查询对象类
@@ -123,6 +136,27 @@ public class LifeCycleTacticsServiceImpl implements LifeCycleTacticsService {
         int successNum = lifeCycleTacticsMapper.deleteByMap(map);
         try {
             scheduler.deleteJob(map.get("scheduler_id").toString());
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
+        return successNum;
+    }
+
+    /**
+     * 根据 schedulerId 列表批量删除数据；
+     *
+     * @param schedulerIdList 删除依据的列表
+     * @return 返回删除数据的行数
+     */
+    @Override
+    public Integer deleteListBySchedulerId(List<String> schedulerIdList) {
+        QueryWrapper<LifeCycleTactics> wrapper = new QueryWrapper<>(null);
+        wrapper.in("scheduler_id", schedulerIdList);
+        int successNum = lifeCycleTacticsMapper.delete(wrapper);
+        try {
+            for (String schedulerId : schedulerIdList) {
+                scheduler.deleteJob(schedulerId);
+            }
         } catch (SchedulerException e) {
             e.printStackTrace();
         }

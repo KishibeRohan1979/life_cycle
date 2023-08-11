@@ -3,6 +3,7 @@ package com.tzp.LifeCycle.controller;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tzp.LifeCycle.aop.annotation.DataBaseAccess;
+import com.tzp.LifeCycle.aop.annotation.EsAccess;
 import com.tzp.LifeCycle.dto.DataBaseQueryDto;
 import com.tzp.LifeCycle.dto.DataBaseUpdateDto;
 import com.tzp.LifeCycle.dto.EsDto;
@@ -92,14 +93,14 @@ public class LifeCycleDataTableController {
     @ApiOperation("删除动态表格（表数据删除一条数据）")
     @DataBaseAccess(accessType = DataAccessType.DELETE)
     @DeleteMapping("/deleteLifeDataTable")
-    public MsgUtil<Object> deleteLifeDataTable(@RequestBody LifeCycleDataTable lifeCycleDataTable) {
+    public MsgUtil<Object> deleteLifeDataTable(@RequestBody DataBaseUpdateDto<LifeCycleDataTable> lifeUpdateTactics) {
         // 先删除es索引
-        boolean deleteResult = esIndexService.deleteIndex(lifeCycleDataTable.getIndexName());
+        boolean deleteResult = esIndexService.deleteIndex(lifeUpdateTactics.getTObject().getIndexName());
         if (!deleteResult) {
             return MsgUtil.fail("删除索引失败");
         }
         // 再删除数据库中关于对应表的详细设计
-        Integer deleteNum = lifeCycleDataTableService.deleteTableById(lifeCycleDataTable);
+        Integer deleteNum = lifeCycleDataTableService.deleteTableById(lifeUpdateTactics.getTObject());
         if ( deleteNum == null || deleteNum == 0) {
             return MsgUtil.fail("删除设计失败");
         }
@@ -153,7 +154,7 @@ public class LifeCycleDataTableController {
      * @return 返回信息
      */
     @ApiOperation("修改一条数据给ES")
-//    @DataBaseUpdate
+    @EsAccess(accessType = DataAccessType.UPDATE)
     @PostMapping("/updateLifeTestByEs")
     public MsgUtil<LifeCycleDataTable> updateLifeTestByEs(@RequestBody EsDto dto) {
         MsgUtil<LifeCycleDataTable> msgUtil = check(dto);
@@ -176,7 +177,7 @@ public class LifeCycleDataTableController {
     }
 
     @ApiOperation("删除一条数据给ES")
-//    @DataBaseDelete
+    @EsAccess(accessType = DataAccessType.DELETE)
     @DeleteMapping("/deleteLifeTestByEs")
     public MsgUtil<LifeCycleDataTable> deleteLifeTestByEs(@RequestBody EsDto dto) {
         MsgUtil<LifeCycleDataTable> msgUtil = check(dto);

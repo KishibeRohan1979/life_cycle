@@ -2,6 +2,8 @@ package com.tzp.LifeCycle.config.job;
 
 import com.tzp.LifeCycle.entity.LifeCycleTactics;
 import com.tzp.LifeCycle.mapper.LifeCycleTacticsMapper;
+import com.tzp.LifeCycle.service.EsDocumentService;
+import com.tzp.LifeCycle.service.EsIndexService;
 import com.tzp.LifeCycle.service.LifeCycleTacticsService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
@@ -23,6 +25,12 @@ public class QuartzJob implements Job {
     @Autowired
     private LifeCycleTacticsMapper lifeCycleTacticsMapper;
 
+    @Autowired
+    private EsIndexService esIndexService;
+
+    @Autowired
+    private EsDocumentService<Object> esDocumentService;
+
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         // 在这里写具体执行的内容
@@ -39,8 +47,27 @@ public class QuartzJob implements Job {
             String primaryKeyValue = cycleTactics.getPrimaryKeyValue();
             Map<String, Object> map = lifeCycleTacticsMapper.selectByPrimaryKey(tableName, primaryKeyName, primaryKeyValue);
             if (map != null) {
-                // 原数据删除
-                Integer num = lifeCycleTacticsMapper.deleteByPrimaryKey(tableName, primaryKeyName, primaryKeyValue);
+                switch (cycleTactics.getDataType()) {
+                    case "list":
+                        break;
+                    case "docList":
+                        // 如果是索引、文件夹需要删除索引
+                        esIndexService.deleteIndex(cycleTactics.getPrimaryKeyValue());
+                        break;
+                    case "fileList":
+                        break;
+                    case "item":
+                        // 原数据删除
+                        lifeCycleTacticsMapper.deleteByPrimaryKey(tableName, primaryKeyName, primaryKeyValue);
+                        break;
+                    case "docItem":
+                        esDocumentService.deleteById(tableName, primaryKeyValue);
+                        break;
+                    case "fileItem":
+                        break;
+                    default:
+                        break;
+                }
             }
             // 不管值有没有，策略都得删除了
             lifeCycleTacticsService.deleteOne(cycleTactics);

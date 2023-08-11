@@ -6,11 +6,15 @@ import com.tzp.LifeCycle.aop.annotation.DataBaseAccess;
 import com.tzp.LifeCycle.dto.DataBaseUpdateDto;
 import com.tzp.LifeCycle.entity.LifeCycleTactics;
 import com.tzp.LifeCycle.enums.DataAccessType;
+import com.tzp.LifeCycle.service.EsIndexService;
 import com.tzp.LifeCycle.service.LifeCycleTacticsService;
 import com.tzp.LifeCycle.util.LifeStringUtil;
+import com.tzp.LifeCycle.util.MsgUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -20,7 +24,7 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Method;
 
 /**
- * 执行数据库行数据更新完毕之后，策略的更新方法
+ * 执行数据库行数据操作完毕之后，策略的更新方法
  *
  * @author kangxvdong
  */
@@ -32,12 +36,30 @@ public class DataBaseAccessAspect<T> {
     @Autowired
     private LifeCycleTacticsService lifeCycleTacticsService;
 
+    /**
+     * 决定是否继续执行After的变量
+     */
+    private boolean notExecution = false;
+
     @Pointcut("@annotation(com.tzp.LifeCycle.aop.annotation.DataBaseAccess)")
     public void dataBaseAccessPointcut() {
     }
 
+    @Around("dataBaseAccessPointcut()")
+    public MsgUtil aroundDataBaseAccess(ProceedingJoinPoint joinPoint) throws Throwable {
+        // 获取方法的返回值
+        Object returnValue = joinPoint.proceed();
+        MsgUtil msgUtil = JSON.parseObject(JSON.toJSONString(returnValue), MsgUtil.class);
+        // 如果执行失败了，@After就不执行了
+        notExecution = !msgUtil.getFlag();
+        return msgUtil;
+    }
+
     @After("dataBaseAccessPointcut()")
     public void afterDataBaseUpdate(JoinPoint joinPoint) {
+        if (notExecution) {
+            return;
+        }
         // 获取原方法的参数
         Object[] args = joinPoint.getArgs();
         DataBaseUpdateDto<T> lifeUpdateTactics = (DataBaseUpdateDto<T>) args[0];
@@ -99,6 +121,7 @@ public class DataBaseAccessAspect<T> {
                 if ("list".equals(tactics.getDataType())) {
                     // 这个方法是删除该索引、文件夹、数据表下所有的策略数据、定时任务
                     lifeCycleTacticsService.deleteByAccessAddressValue(keyValue);
+                    // 删除索引的方法，最好放在 Controller 里，这样的话，看的比较清楚，而且后续加删除文件可以方便一点
                 }
                 // 删除策略表中，对应表、行的策略值
                 LifeCycleTactics deleteLiCyTa = new LifeCycleTactics(

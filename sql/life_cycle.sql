@@ -11,7 +11,7 @@
  Target Server Version : 50737
  File Encoding         : 65001
 
- Date: 08/08/2023 15:12:06
+ Date: 11/08/2023 15:11:33
 */
 
 SET NAMES utf8mb4;
@@ -33,7 +33,7 @@ CREATE TABLE `life_cycle_data_table`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `life_cycle_tactics`;
 CREATE TABLE `life_cycle_tactics`  (
-  `tactics_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '策略（该）表主键id',
+  `tactics_id` bigint(30) NOT NULL AUTO_INCREMENT COMMENT '策略（该）表主键id',
   `scheduler_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '定时任务id，该字段是唯一的（约定使用（表名+主键名+主键值）当作定时任务id）',
   `tactics_type` int(11) NULL DEFAULT NULL COMMENT '策略类型（1、根据使用频率的周期；2、根据固定周期；）',
   `create_time` bigint(20) NULL DEFAULT NULL COMMENT '创建时间',
@@ -49,7 +49,7 @@ CREATE TABLE `life_cycle_tactics`  (
   `data_type` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '访问数据的类型（数据表、索引、文件夹统一写“list”；具体数据行、文档、文件用“item”表示）',
   PRIMARY KEY (`tactics_id`) USING BTREE,
   UNIQUE INDEX `scheduler_id`(`scheduler_id`) USING BTREE COMMENT '定时id应该唯一'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for life_cycle_test

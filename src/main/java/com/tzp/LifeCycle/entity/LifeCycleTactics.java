@@ -75,7 +75,7 @@ public class LifeCycleTactics implements Serializable {
     private String primaryKeyValue;
 
     @TableField(value = "data_type")
-    @ApiModelProperty(value = "访问数据的类型（数据表、索引、文件夹统一写“list”；具体数据行、文档、文件用“item”表示）", name = "dataType", required=true)
+    @ApiModelProperty(value = "访问数据的类型（数据表用“list”、索引用”docList“、文件夹用“fileList”；具体的数据行（即不能删除表的行）用”item“、动态表单的行用”docItem“、具体文件用“fileItem”表示）", name = "dataType", required=true)
     private String dataType;
 
     /**
