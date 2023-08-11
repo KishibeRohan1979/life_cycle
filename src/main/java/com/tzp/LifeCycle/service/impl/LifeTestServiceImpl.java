@@ -6,7 +6,6 @@ import com.tzp.LifeCycle.dto.DataBaseQueryDto;
 import com.tzp.LifeCycle.entity.LifeTest;
 import com.tzp.LifeCycle.mapper.LifeTestMapper;
 import com.tzp.LifeCycle.service.LifeTestService;
-import com.tzp.LifeCycle.util.LifeStringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

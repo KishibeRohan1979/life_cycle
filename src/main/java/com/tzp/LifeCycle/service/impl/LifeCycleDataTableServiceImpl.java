@@ -32,7 +32,12 @@ public class LifeCycleDataTableServiceImpl implements LifeCycleDataTableService 
      */
     @Override
     public Integer createTable(LifeCycleDataTable leCyDaTa) {
-        return lifeCycleDataTableMapper.insert(leCyDaTa);
+        try {
+            return lifeCycleDataTableMapper.insert(leCyDaTa);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     /**

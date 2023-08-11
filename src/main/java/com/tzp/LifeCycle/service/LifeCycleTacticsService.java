@@ -55,12 +55,20 @@ public interface LifeCycleTacticsService {
     Integer createByList(List<LifeCycleTactics> list);
 
     /**
-     * 根据对象删除一条数据；1690360610
+     * 根据对象删除一条数据；
      *
      * @param t 删除依据的对象
      * @return 返回删除数据的行数
      */
     Integer deleteOne(LifeCycleTactics t);
+
+    /**
+     * 删除where access_address = value的所有行数
+     *
+     * @param accessAddress 删除accessAddress依据的值
+     * @return 返回删除数据的行数
+     */
+    Integer deleteByAccessAddressValue(String accessAddress);
 
     // 批量删除
 

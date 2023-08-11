@@ -9,6 +9,7 @@ import com.tzp.LifeCycle.entity.LifeCycleTactics;
 import com.tzp.LifeCycle.mapper.LifeCycleTacticsMapper;
 import com.tzp.LifeCycle.service.LifeCycleTacticsService;
 import com.tzp.LifeCycle.util.LifeStringUtil;
+import com.tzp.LifeCycle.util.PageUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,12 +108,15 @@ public class LifeCycleTacticsServiceImpl implements LifeCycleTacticsService {
     /**
      * 根据对象删除一条数据；
      *
+     * 至于说为什么这个方法这么写呢，是因为比如数据库里的键叫index_name这里直接用对象，就发送的是indexName，导致找不到字段
+     * 所以就用了这么个很奇怪的方法
+     *
      * @param t 删除依据的对象
      * @return 返回删除数据的行数
      */
     @Override
     public Integer deleteOne(LifeCycleTactics t) {
-        Map<String, Object> map = JSON.parseObject(JSON.toJSONString(t), Map.class);
+        Map<String, Object> map = JSON.parseObject(JSON.toJSONString(t));
         // 因为数据库字段和map对应不上，用这个算法替换一下key
         map = LifeStringUtil.convertMapKeys(map);
         // 利用转换好的map删除对应数据
@@ -123,6 +127,33 @@ public class LifeCycleTacticsServiceImpl implements LifeCycleTacticsService {
             e.printStackTrace();
         }
         return successNum;
+    }
+
+    /**
+     * 当删除索引、文件夹、数据表时，删除对应索引下的所有数据、定时任务
+     * 删除where access_address = value的所有行数
+     *
+     * @param accessAddress 删除accessAddress依据的值
+     * @return 返回删除数据的行数
+     */
+    @Override
+    public Integer deleteByAccessAddressValue(String accessAddress) {
+        QueryWrapper<LifeCycleTactics> wrapper = new QueryWrapper<>(null);
+        wrapper.eq("access_address", accessAddress);
+
+        // 删除springboot中的定时任务
+        // 至于为什么这里没有使用安全方法，是因为定时策略里没有包含任何有效的敏感或者有效信息
+        // 就算删除失败了，也最多是定时任务执行失败，不影响整个项目效率
+        List<LifeCycleTactics> tacticsList = PageUtil.getPageListByDataBase(lifeCycleTacticsMapper, wrapper);
+        for (LifeCycleTactics tactic : tacticsList) {
+            try {
+                scheduler.deleteJob(tactic.getSchedulerId());
+            } catch (SchedulerException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return lifeCycleTacticsMapper.delete(wrapper);
     }
 
 

@@ -16,7 +16,7 @@ import java.util.Map;
 @Data
 public class EsQueryDto<T> {
 
-    @ApiModelProperty(value = "索引名称（在这里一般指BVid）", name = "indexName")
+    @ApiModelProperty(value = "索引名称", name = "indexName")
     private String indexName;
 
     @ApiModelProperty(value = "评论类型", name = "type")

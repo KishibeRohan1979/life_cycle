@@ -1,5 +1,7 @@
 package com.tzp.LifeCycle.aop.annotation;
 
+import com.tzp.LifeCycle.enums.DataAccessType;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -14,5 +16,13 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DataBaseUpdate {
+public @interface DataBaseAccess {
+
+    /**
+     * 必填！！！获取请求类型
+     *
+     * @return 请求类型
+     */
+    DataAccessType accessType();
+
 }

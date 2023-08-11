@@ -33,6 +33,17 @@ public interface EsDocumentService<T> {
      *
      * @param idxName   索引名
      * @param documents 要增加的对象集合
+     * @param idNameInJavaProject 在Java项目中，描述id（唯一标识符）的字段名
+     * @return 批量操作的结果
+     * @throws Exception 异常
+     */
+    BulkResponse batchCreateByCustomizationId(String idxName, List<Map<String, Object>> documents, String idNameInJavaProject) throws Exception;
+
+    /**
+     * 批量增加文档
+     *
+     * @param idxName   索引名
+     * @param documents 要增加的对象集合
      * @return 批量操作的结果
      * @throws Exception 异常
      */
@@ -86,6 +97,7 @@ public interface EsDocumentService<T> {
      * @return 查询结果
      * @throws IOException 异常
      */
+    @Deprecated
     Map<String, Object> searchByQueryString(EsQueryDto<T> esQueryDTO) throws IOException;
 
     /**
@@ -95,6 +107,7 @@ public interface EsDocumentService<T> {
      * @param esQueryDTO 查询类
      * @throws IOException 异常
      */
+    @Deprecated
     Map<String, Object> searchByPage(EsQueryDto<T> esQueryDTO) throws IOException;
 
     /**
@@ -114,11 +127,21 @@ public interface EsDocumentService<T> {
      * @param indexName 索引名
      * @param t 实体类对象
      * @param id 文档id
-     * @param clazz clazz
      * @return 返回是否修改成功，true成功，false失败
      * @throws Exception 异常
      */
-    boolean updateById(String indexName, T t, String id, Class<T> clazz) throws Exception;
+    boolean updateById(String indexName, T t, String id) throws Exception;
+
+    /**
+     * 批量修改索引文档的数据
+     *
+     * @param indexName 索引名
+     * @param list 数据对象列表
+     * @param primaryKey 主键的名字
+     * @return 返回批量修改是否成功，true成功，false（有部分）失败
+     * @throws Exception 异常
+     */
+    boolean batchUpdateByIdMap(String indexName, List<Map<String, Object>> list, String primaryKey) throws Exception;
 
     /**
      * 批量修改索引文档的数据
@@ -126,9 +149,10 @@ public interface EsDocumentService<T> {
      * @param indexName 索引名
      * @param list 数据对象列表
      * @param clazz clazz
+     * @param primaryKey 主键的名字
      * @return 返回批量修改是否成功，true成功，false（有部分）失败
      * @throws Exception 异常
      */
-    boolean batchUpdateById(String indexName, List<T> list, Class<T> clazz) throws Exception;
+    boolean batchUpdateById(String indexName, List<T> list, Class<T> clazz, String primaryKey) throws Exception;
 
 }

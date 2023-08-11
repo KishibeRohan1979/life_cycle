@@ -1,6 +1,7 @@
 package com.tzp.LifeCycle.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tzp.LifeCycle.dto.EsQueryDto;
 import com.tzp.LifeCycle.service.EsDocumentService;
 import com.tzp.LifeCycle.util.LifeStringUtil;
@@ -43,10 +44,7 @@ import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author kangxvdong
@@ -73,6 +71,31 @@ public class EsDocumentServiceImpl<T> implements EsDocumentService<T> {
         request.id(idxId);
         request.source(JSON.toJSONString(document, false), XContentType.JSON);
         return restHighLevelClient.index(request, RequestOptions.DEFAULT);
+    }
+
+    /**
+     * 批量增加文档
+     *
+     * @param idxName   索引名
+     * @param documents 要增加的对象集合
+     * @param idNameInJavaProject 在Java项目中，描述id（唯一标识符）的字段名
+     * @return 批量操作的结果
+     * @throws Exception 异常
+     */
+    @Override
+    public BulkResponse batchCreateByCustomizationId(String idxName, List<Map<String, Object>> documents, String idNameInJavaProject) throws Exception {
+        BulkRequest bulkRequest = new BulkRequest();
+        // 批量请求处理
+        for (Map<String, Object> map : documents) {
+            String docId = map.get(idNameInJavaProject).toString();
+            bulkRequest.add(
+                    // 这里是数据信息
+                    new IndexRequest(idxName)
+                            .id(docId)
+                            .source(JSON.toJSONString(map, false), XContentType.JSON)
+            );
+        }
+        return restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
     }
 
     /**
@@ -383,15 +406,14 @@ public class EsDocumentServiceImpl<T> implements EsDocumentService<T> {
      * @param indexName 索引名
      * @param t         实体类对象
      * @param id        文档id
-     * @param clazz     clazz  封装的实现
      * @return 返回是否修改成功
      */
     @Override
-    public boolean updateById(String indexName, T t, String id, Class<T> clazz) throws Exception {
+    public boolean updateById(String indexName, T t, String id) throws Exception {
         UpdateRequest updateRequest = new UpdateRequest();
         updateRequest.index(indexName);
         updateRequest.id(id);
-        updateRequest.doc(getBuilder(t, clazz));
+        updateRequest.doc(new ObjectMapper().writeValueAsString(t), XContentType.JSON);
 
         UpdateResponse updateResponse = restHighLevelClient.update(updateRequest, RequestOptions.DEFAULT);
 
@@ -403,15 +425,38 @@ public class EsDocumentServiceImpl<T> implements EsDocumentService<T> {
      *
      * @param indexName 索引名
      * @param list      数据对象列表
+     * @return 返回批量修改是否成功
+     */
+    @Override
+    public boolean batchUpdateByIdMap(String indexName, List<Map<String, Object>> list, String primaryKey) throws Exception {
+        BulkRequest bulkRequest = new BulkRequest();
+        for (Map<String, Object> map : list) {
+            String docId = map.get(primaryKey).toString();
+
+            UpdateRequest updateRequest = new UpdateRequest(indexName, docId)
+                    .doc(new ObjectMapper().writeValueAsString(map), XContentType.JSON);
+
+            bulkRequest.add(updateRequest);
+        }
+
+        BulkResponse bulkResponse = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+
+        return !bulkResponse.hasFailures();
+    }
+
+    /**
+     * 批量修改索引文档的数据
+     *
+     * @param indexName 索引名
+     * @param list      数据对象列表
      * @param clazz     clazz
      * @return 返回批量修改是否成功
      */
     @Override
-    public boolean batchUpdateById(String indexName, List<T> list, Class<T> clazz) throws Exception {
+    public boolean batchUpdateById(String indexName, List<T> list, Class<T> clazz, String primaryKey) throws Exception {
         BulkRequest bulkRequest = new BulkRequest();
         for (T object : list) {
-            // 这个方法有些冒险，需要我们提前约定好，ES的实体类一定要包括id，所以ES的对象需要统一继承 某个 这个父类
-            String docId = getIdByEsObject(object, clazz);
+            String docId = getIdByEsObject(object, clazz, primaryKey);
 
             UpdateRequest updateRequest = new UpdateRequest(indexName, docId)
                     .doc(getBuilder(object, clazz));
@@ -514,7 +559,7 @@ public class EsDocumentServiceImpl<T> implements EsDocumentService<T> {
      * @return id值
      * @throws Exception 异常
      */
-    private String getIdByEsObject(T t, Class<T> clazz) throws Exception {
+    private String getIdByEsObject(T t, Class<T> clazz, String primaryKey) throws Exception {
         // 通过 BeanUtils 获取给定对象的属性描述符。属性描述符包含了对象的属性名、读取方法和写入方法等信息
         PropertyDescriptor[] propertyDescriptors = BeanUtils.getPropertyDescriptors(clazz);
 
@@ -522,7 +567,7 @@ public class EsDocumentServiceImpl<T> implements EsDocumentService<T> {
         for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
             // 获取当前属性描述符的属性名
             String propertyName = propertyDescriptor.getName();
-            if ("id".equals(propertyName)) {
+            if (primaryKey.equals(propertyName)) {
                 // 通过属性描述符的读取方法获取属性值
                 Object propertyValue = propertyDescriptor.getReadMethod().invoke(t);
                 return propertyValue.toString();

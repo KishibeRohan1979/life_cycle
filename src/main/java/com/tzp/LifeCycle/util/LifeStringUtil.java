@@ -86,4 +86,20 @@ public class LifeStringUtil {
         return converted.toString();
     }
 
+    /**
+     * 检查inputMap的key在tableMap中全部存不存在
+     *
+     * @param tableMap 数据库中的map
+     * @param inputMap 前端输入的map
+     * @return 如果不存在直接返回false，全部存在返回true
+     */
+    public static boolean checkKeysExistence(Map<String, Object> tableMap, Map<String, Object> inputMap) {
+        for (String key : inputMap.keySet()) {
+            if (!tableMap.containsKey(key)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

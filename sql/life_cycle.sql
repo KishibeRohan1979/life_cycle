@@ -11,11 +11,22 @@
  Target Server Version : 50737
  File Encoding         : 65001
 
- Date: 27/07/2023 14:15:53
+ Date: 08/08/2023 15:12:06
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for life_cycle_data_table
+-- ----------------------------
+DROP TABLE IF EXISTS `life_cycle_data_table`;
+CREATE TABLE `life_cycle_data_table`  (
+  `index_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '此表主键id，存储的信息是动态、可自定义表单的表名（索引名）',
+  `all_fields` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '字段字典<字段，字段类型>，不过json化了',
+  `primary_key_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '主键是哪个字段',
+  PRIMARY KEY (`index_name`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for life_cycle_tactics
@@ -38,7 +49,7 @@ CREATE TABLE `life_cycle_tactics`  (
   `data_type` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '访问数据的类型（数据表、索引、文件夹统一写“list”；具体数据行、文档、文件用“item”表示）',
   PRIMARY KEY (`tactics_id`) USING BTREE,
   UNIQUE INDEX `scheduler_id`(`scheduler_id`) USING BTREE COMMENT '定时id应该唯一'
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for life_cycle_test
@@ -49,6 +60,6 @@ CREATE TABLE `life_cycle_test`  (
   `user_name` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户名',
   `synopsis` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '简介',
   PRIMARY KEY (`test_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;

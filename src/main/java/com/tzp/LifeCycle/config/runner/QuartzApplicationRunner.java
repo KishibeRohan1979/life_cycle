@@ -42,6 +42,7 @@ public class QuartzApplicationRunner implements ApplicationRunner {
             Page<LifeCycleTactics> resultPage = lifeCycleTacticsMapper.selectPage(page, null);
 
             // 处理当前页的数据
+            // 添加定时任务写在循环里，是为了保证稳定，如果数据库在读取时报错，很有可能一个定时任务也添加不了。
             for (LifeCycleTactics lifeCycleTactics : resultPage.getRecords()) {
                 // 获取 schedule_id 和 execution_time 的值
                 String scheduleId = lifeCycleTactics.getSchedulerId();

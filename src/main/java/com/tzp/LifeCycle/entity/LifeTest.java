@@ -19,7 +19,7 @@ public class LifeTest implements Serializable {
 
     @TableId(value = "test_id", type = IdType.AUTO)
     @ApiModelProperty(value = "主键id", name = "testId", dataType="Integer")
-    private Integer testId;
+    private Long testId;
 
     @TableField(value = "user_name")
     @ApiModelProperty(value = "用户名", name = "userName", dataType="String", required=true)

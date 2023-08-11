@@ -1,12 +1,12 @@
 package com.tzp.LifeCycle.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.tzp.LifeCycle.aop.annotation.DataBaseDelete;
-import com.tzp.LifeCycle.aop.annotation.DataBaseUpdate;
+import com.tzp.LifeCycle.aop.annotation.DataBaseAccess;
 import com.tzp.LifeCycle.dto.DataBaseQueryDto;
 import com.tzp.LifeCycle.dto.DataBaseUpdateDto;
 import com.tzp.LifeCycle.entity.LifeTest;
-import com.tzp.LifeCycle.service.LifeTestService;
+import com.tzp.LifeCycle.enums.DataAccessType;
+import com.tzp.LifeCycle.service.*;
 import com.tzp.LifeCycle.util.MsgUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,7 +27,7 @@ public class TestController {
     @Autowired
     private LifeTestService lifeCycleService;
 
-    @ApiOperation("添加一条数据")
+    @ApiOperation("添加一条数据给数据库")
     @PostMapping("/addLifeTest")
     public MsgUtil<Object> addLifeTest(@RequestBody LifeTest lifeTest) {
         Integer createNum = lifeCycleService.createOne(lifeTest);
@@ -37,7 +37,7 @@ public class TestController {
         return MsgUtil.success();
     }
 
-    @ApiOperation("查询一条数据")
+    @ApiOperation("查询一条数据给数据库")
     @PostMapping("/queryLifeTest")
     public MsgUtil<Object> queryLifeTest(@RequestBody DataBaseQueryDto dataBaseQueryDto) {
         Page<LifeTest> page = lifeCycleService.queryList(dataBaseQueryDto);
@@ -50,8 +50,8 @@ public class TestController {
      * @param lifeUpdateTactics 数据和策略的一起修改
      * @return 返回信息
      */
-    @ApiOperation("修改一条数据")
-    @DataBaseUpdate
+    @ApiOperation("修改一条数据给数据库")
+    @DataBaseAccess(accessType = DataAccessType.UPDATE)
     @PostMapping("/updateLifeTest")
     public MsgUtil<Object> updateLifeTest(@RequestBody DataBaseUpdateDto<LifeTest> lifeUpdateTactics) {
         // 里面的t引用对象类提出来，更新数据库表的数据
@@ -62,11 +62,11 @@ public class TestController {
         return MsgUtil.success("修改成功");
     }
 
-    @ApiOperation("删除一条数据")
-    @DataBaseDelete
+    @ApiOperation("删除一条数据给数据库")
+    @DataBaseAccess(accessType = DataAccessType.DELETE)
     @DeleteMapping("/deleteLifeTest")
-    public MsgUtil<Object> deleteLifeTest(@RequestBody LifeTest lifeTest) {
-        Integer deleteNum = lifeCycleService.deleteOne(lifeTest);
+    public MsgUtil<Object> deleteLifeTest(@RequestBody DataBaseUpdateDto<LifeTest> lifeTest) {
+        Integer deleteNum = lifeCycleService.deleteOne(lifeTest.getTObject());
         if ( deleteNum == null || deleteNum == 0) {
             return MsgUtil.fail();
         }
