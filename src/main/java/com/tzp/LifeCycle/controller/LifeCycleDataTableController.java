@@ -199,6 +199,12 @@ public class LifeCycleDataTableController {
         return MsgUtil.success();
     }
 
+    /**
+     * 校验前端数据
+     *
+     * @param dto EsDto传输数据类
+     * @return 返回检查结果
+     */
     private MsgUtil<LifeCycleDataTable> check(EsDto dto) {
         // 第一步，确认是否有名为 indexName 的索引，存在再添加文档
         boolean exists = esIndexService.indexExists(dto.getIndexName());

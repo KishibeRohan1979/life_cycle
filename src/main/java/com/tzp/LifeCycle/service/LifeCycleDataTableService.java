@@ -28,6 +28,14 @@ public interface LifeCycleDataTableService {
     Integer deleteTableById(LifeCycleDataTable leCyDaTa);
 
     /**
+     * 删除一个动态表
+     *
+     * @param id 删除使用的数据id
+     * @return 返回删除成功的条数
+     */
+    Integer deleteById(String id);
+
+    /**
      * 更新一个动态表数据
      *
      * @param leCyDaTa 更新使用的数据对象

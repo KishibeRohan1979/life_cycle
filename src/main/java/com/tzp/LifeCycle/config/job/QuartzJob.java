@@ -4,6 +4,7 @@ import com.tzp.LifeCycle.entity.LifeCycleTactics;
 import com.tzp.LifeCycle.mapper.LifeCycleTacticsMapper;
 import com.tzp.LifeCycle.service.EsDocumentService;
 import com.tzp.LifeCycle.service.EsIndexService;
+import com.tzp.LifeCycle.service.LifeCycleDataTableService;
 import com.tzp.LifeCycle.service.LifeCycleTacticsService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
@@ -31,6 +32,9 @@ public class QuartzJob implements Job {
     @Autowired
     private EsDocumentService<Object> esDocumentService;
 
+    @Autowired
+    private LifeCycleDataTableService lifeCycleDataTableService;
+
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         // 在这里写具体执行的内容
@@ -45,29 +49,30 @@ public class QuartzJob implements Job {
             String tableName = cycleTactics.getAccessAddress();
             String primaryKeyName = cycleTactics.getPrimaryKeyName();
             String primaryKeyValue = cycleTactics.getPrimaryKeyValue();
-            Map<String, Object> map = lifeCycleTacticsMapper.selectByPrimaryKey(tableName, primaryKeyName, primaryKeyValue);
-            if (map != null) {
-                switch (cycleTactics.getDataType()) {
-                    case "list":
-                        break;
-                    case "docList":
-                        // 如果是索引、文件夹需要删除索引
-                        esIndexService.deleteIndex(cycleTactics.getPrimaryKeyValue());
-                        break;
-                    case "fileList":
-                        break;
-                    case "item":
-                        // 原数据删除
-                        lifeCycleTacticsMapper.deleteByPrimaryKey(tableName, primaryKeyName, primaryKeyValue);
-                        break;
-                    case "docItem":
-                        esDocumentService.deleteById(tableName, primaryKeyValue);
-                        break;
-                    case "fileItem":
-                        break;
-                    default:
-                        break;
-                }
+            switch (cycleTactics.getDataType()) {
+                case "list":
+                    break;
+                case "docList":
+                    // 这个方法是删除该索引、文件夹、数据表下所有的策略数据、定时任务
+                    lifeCycleTacticsService.deleteByAccessAddressValue(primaryKeyValue);
+                    // 如果是索引、文件夹需要删除索引
+                    esIndexService.deleteIndex(primaryKeyValue);
+                    // 删除表记录中关于表设计的内容
+                    lifeCycleDataTableService.deleteById(primaryKeyValue);
+                    break;
+                case "fileList":
+                    break;
+                case "item":
+                    // 原数据删除
+                    lifeCycleTacticsMapper.deleteByPrimaryKey(tableName, primaryKeyName, primaryKeyValue);
+                    break;
+                case "docItem":
+                    esDocumentService.deleteById(tableName, primaryKeyValue);
+                    break;
+                case "fileItem":
+                    break;
+                default:
+                    break;
             }
             // 不管值有没有，策略都得删除了
             lifeCycleTacticsService.deleteOne(cycleTactics);

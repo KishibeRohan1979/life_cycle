@@ -6,14 +6,11 @@ import com.tzp.LifeCycle.aop.annotation.DataBaseAccess;
 import com.tzp.LifeCycle.dto.DataBaseUpdateDto;
 import com.tzp.LifeCycle.entity.LifeCycleTactics;
 import com.tzp.LifeCycle.enums.DataAccessType;
-import com.tzp.LifeCycle.service.EsIndexService;
 import com.tzp.LifeCycle.service.LifeCycleTacticsService;
 import com.tzp.LifeCycle.util.LifeStringUtil;
 import com.tzp.LifeCycle.util.MsgUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
@@ -36,11 +33,6 @@ public class DataBaseAccessAspect<T> {
     @Autowired
     private LifeCycleTacticsService lifeCycleTacticsService;
 
-    /**
-     * 决定是否继续执行After的变量
-     */
-    private boolean notExecution = false;
-
     @Pointcut("@annotation(com.tzp.LifeCycle.aop.annotation.DataBaseAccess)")
     public void dataBaseAccessPointcut() {
     }
@@ -51,14 +43,8 @@ public class DataBaseAccessAspect<T> {
         Object returnValue = joinPoint.proceed();
         MsgUtil msgUtil = JSON.parseObject(JSON.toJSONString(returnValue), MsgUtil.class);
         // 如果执行失败了，@After就不执行了
-        notExecution = !msgUtil.getFlag();
-        return msgUtil;
-    }
-
-    @After("dataBaseAccessPointcut()")
-    public void afterDataBaseUpdate(JoinPoint joinPoint) {
-        if (notExecution) {
-            return;
+        if (!msgUtil.getFlag()) {
+            return msgUtil;
         }
         // 获取原方法的参数
         Object[] args = joinPoint.getArgs();
@@ -118,10 +104,12 @@ public class DataBaseAccessAspect<T> {
             case DELETE:
                 // 一个删除的操作
                 // 如果删除的是list（索引、文件夹）需要同步删除对应list（索引、文件夹）下含有的策略
-                if ("list".equals(tactics.getDataType())) {
+                if ("docList".equals(tactics.getDataType())) {
                     // 这个方法是删除该索引、文件夹、数据表下所有的策略数据、定时任务
                     lifeCycleTacticsService.deleteByAccessAddressValue(keyValue);
                     // 删除索引的方法，最好放在 Controller 里，这样的话，看的比较清楚，而且后续加删除文件可以方便一点
+                } else if ( "fileList".equals(tactics.getDataType()) ) {
+                    // 删除文件夹下所有文件的策略
                 }
                 // 删除策略表中，对应表、行的策略值
                 LifeCycleTactics deleteLiCyTa = new LifeCycleTactics(
@@ -139,6 +127,6 @@ public class DataBaseAccessAspect<T> {
             default:
                 break;
         }
+        return msgUtil;
     }
-
 }

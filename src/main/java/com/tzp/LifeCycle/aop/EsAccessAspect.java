@@ -11,9 +11,7 @@ import com.tzp.LifeCycle.service.LifeCycleDataTableService;
 import com.tzp.LifeCycle.service.LifeCycleTacticsService;
 import com.tzp.LifeCycle.util.MsgUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
@@ -43,11 +41,6 @@ public class EsAccessAspect {
     @Autowired
     private LifeCycleDataTableService lifeCycleDataTableService;
 
-    /**
-     * 决定是否继续执行After的变量
-     */
-    private boolean notExecution = false;
-
     @Pointcut("@annotation(com.tzp.LifeCycle.aop.annotation.EsAccess)")
     public void esAccessPointcut() {
     }
@@ -57,20 +50,9 @@ public class EsAccessAspect {
         // 获取方法的返回值
         Object returnValue = joinPoint.proceed();
         MsgUtil msgUtil = JSON.parseObject(JSON.toJSONString(returnValue), MsgUtil.class);
-        notExecution = false;
-        System.out.println(msgUtil);
         if (!msgUtil.getFlag()) {
             // 如果执行失败了，@After就不执行了
-            notExecution = true;
-        }
-        return msgUtil;
-    }
-
-    @After("esAccessPointcut()")
-    public void afterEsAccess(JoinPoint joinPoint) {
-        System.out.println("notExecution:" +  notExecution);
-        if (notExecution) {
-            return;
+            return msgUtil;
         }
         // 获取原方法的参数
         Object[] args = joinPoint.getArgs();
@@ -81,7 +63,7 @@ public class EsAccessAspect {
         // 第一步,查询对应设计表存储的主键内容
         LifeCycleDataTable table = lifeCycleDataTableService.queryByIndex(indexName);
         if (table == null) {
-            return;
+            return MsgUtil.fail();
         }
         String keyProperty = table.getPrimaryKeyName();
         List<Map<String, Object>> mapList = lifeTactics.getDataList();
@@ -144,6 +126,7 @@ public class EsAccessAspect {
             default:
                 break;
         }
+        return msgUtil;
     }
 
     /**
