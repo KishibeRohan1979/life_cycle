@@ -122,7 +122,7 @@ public class FileController {
     @ApiOperation("下载文件")
     @GetMapping("/download")
     public void downloadFile(@RequestParam("filePath") String filePath,
-                                        HttpServletResponse response) {
+                             HttpServletResponse response) {
         File file = new File(filePath);
         if (!file.exists()) {
             return;
@@ -148,8 +148,7 @@ public class FileController {
 
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             if (bis != null) {
                 try {
                     bis.close();
