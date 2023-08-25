@@ -41,6 +41,7 @@ public class FileController {
                 // 加密操作
                 String fileName = EncryptionUtil.encryptFile(multipartFile, encryptFiles.getPath(), key);
                 String filePath = encryptFiles.getPath() + "/" + fileName;
+                // Windows 特有的路径是两个斜杠
                 resultList.add(filePath.replaceAll("\\\\", "/"));
             } catch (Exception e) {
                 e.printStackTrace();
@@ -72,6 +73,7 @@ public class FileController {
                 // 解密操作
                 String fileName = EncryptionUtil.decryptFile(multipartFile, decryptFiles.getPath(), key);
                 String filePath = decryptFiles.getPath() + "/" + fileName;
+                // Windows 特有的路径是两个斜杠
                 resultList.add(filePath.replaceAll("\\\\", "/"));
             } catch (Exception e) {
                 e.printStackTrace();
