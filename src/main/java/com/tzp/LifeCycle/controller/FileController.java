@@ -8,7 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,6 +116,54 @@ public class FileController {
         } catch (Exception e) {
             e.printStackTrace();
             return MsgUtil.fail("解密失败", "密钥错误");
+        }
+    }
+
+    @ApiOperation("下载文件")
+    @GetMapping("/download")
+    public void downloadFile(@RequestParam("filePath") String filePath,
+                                        HttpServletResponse response) {
+        File file = new File(filePath);
+        if (!file.exists()) {
+            return;
+        }
+        // 配置文件下载
+        response.setHeader("content-type", "application/octet-stream");
+        response.setContentType("application/octet-stream");
+        FileInputStream fis = null;
+        BufferedInputStream bis = null;
+        // 下载文件能正常显示中文
+        try {
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(file.getName(), "UTF-8"));
+            // 实现文件下载
+            byte[] buffer = new byte[1024];
+            fis = new FileInputStream(file);
+            bis = new BufferedInputStream(fis);
+            OutputStream os = response.getOutputStream();
+            int i = bis.read(buffer);
+            while (i != -1) {
+                os.write(buffer, 0, i);
+                i = bis.read(buffer);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            if (bis != null) {
+                try {
+                    bis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
