@@ -1,7 +1,8 @@
 package com.tzp.LifeCycle.controller;
 
-import com.tzp.LifeCycle.util.EncryptionUtil;
+import com.tzp.LifeCycle.util.AESUtil;
 import com.tzp.LifeCycle.util.MsgUtil;
+import com.tzp.LifeCycle.util.SM4Util;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +42,7 @@ public class FileController {
                     boolean b = encryptFiles.mkdirs();
                 }
                 // 加密操作
-                String fileName = EncryptionUtil.encryptFile(multipartFile, encryptFiles.getPath(), key);
+                String fileName = AESUtil.encryptFile(multipartFile, encryptFiles.getPath(), key);
                 String filePath = encryptFiles.getPath() + "/" + fileName;
                 // Windows 特有的路径是两个斜杠
                 resultList.add(filePath.replaceAll("\\\\", "/"));
@@ -73,7 +74,7 @@ public class FileController {
                 }
 
                 // 解密操作
-                String fileName = EncryptionUtil.decryptFile(multipartFile, decryptFiles.getPath(), key);
+                String fileName = AESUtil.decryptFile(multipartFile, decryptFiles.getPath(), key);
                 String filePath = decryptFiles.getPath() + "/" + fileName;
                 // Windows 特有的路径是两个斜杠
                 resultList.add(filePath.replaceAll("\\\\", "/"));
@@ -94,7 +95,7 @@ public class FileController {
             return MsgUtil.fail("请求失败", checkMsg.getData());
         }
         try {
-            String encryptString = EncryptionUtil.encryption(strData, key);
+            String encryptString = AESUtil.encryption(strData, key);
             return MsgUtil.success("加密成功", encryptString);
         } catch (Exception e) {
             e.printStackTrace();
@@ -111,7 +112,7 @@ public class FileController {
             return MsgUtil.fail("请求失败", checkMsg.getData());
         }
         try {
-            String encryptString = EncryptionUtil.decrypt(strData, key);
+            String encryptString = AESUtil.decrypt(strData, key);
             return MsgUtil.success("解密成功", encryptString);
         } catch (Exception e) {
             e.printStackTrace();
@@ -174,6 +175,103 @@ public class FileController {
             }
         }
         return MsgUtil.success("校验通过");
+    }
+
+    @ApiOperation("自定义密钥加密文件SM4")
+    @PostMapping("/uploadFileAndEncryptBySM4")
+    public MsgUtil<Object> uploadFileAndEncryptBySm4(@RequestParam("files") MultipartFile[] files,
+                                                     @RequestParam(name = "key", required = false) String key) {
+        MsgUtil<String> checkMsg = checkKey(key);
+        if (!checkMsg.getFlag()) {
+            return MsgUtil.fail("请求失败", checkMsg.getData());
+        }
+        List<String> resultList = new ArrayList<>();
+        for (MultipartFile multipartFile : files) {
+            try {
+                // 获取当前运行的Jar包所在路径（当前工作目录）
+                String fileDirPath = System.getProperty("user.dir");
+                // 相同目录下创建一个 file 的文件夹，再在 file 文件夹下创建加密文件夹（encryptFiles）和解密文件夹（decryptFiles）
+                File encryptFiles = new File(fileDirPath + "/file/encryptFiles");
+                if (!encryptFiles.exists()) {
+                    boolean b = encryptFiles.mkdirs();
+                }
+                // 加密操作
+                String fileName = SM4Util.encryptFile(multipartFile, encryptFiles.getPath(), key);
+                String filePath = encryptFiles.getPath() + "/" + fileName;
+                // Windows 特有的路径是两个斜杠
+                resultList.add(filePath.replaceAll("\\\\", "/"));
+            } catch (Exception e) {
+                e.printStackTrace();
+                return MsgUtil.fail();
+            }
+        }
+        return MsgUtil.success("加密成功", resultList);
+    }
+
+    @ApiOperation("自定义密钥解密文件SM4")
+    @PostMapping("/uploadFileAndDecryptByUserKeyBySM4")
+    public MsgUtil<Object> uploadFileAndDecryptByUserKeyBySM4(@RequestParam("files") MultipartFile[] files,
+                                                              @RequestParam(name = "key", required = false) String key) {
+        MsgUtil<String> checkMsg = checkKey(key);
+        if (!checkMsg.getFlag()) {
+            return MsgUtil.fail("请求失败", checkMsg.getData());
+        }
+        List<String> resultList = new ArrayList<>();
+        for (MultipartFile multipartFile : files) {
+            try {
+                // 获取当前运行的Jar包所在路径（当前工作目录）
+                String fileDirPath = System.getProperty("user.dir");
+                // 相同目录下创建一个 file 的文件夹，再在 file 文件夹下创建加密文件夹（encryptFiles）和解密文件夹（decryptFiles）
+                File decryptFiles = new File(fileDirPath + "/file/decryptFiles");
+                if (!decryptFiles.exists()) {
+                    boolean b = decryptFiles.mkdirs();
+                }
+
+                // 解密操作
+                String fileName = SM4Util.decryptFile(multipartFile, decryptFiles.getPath(), key);
+                String filePath = decryptFiles.getPath() + "/" + fileName;
+                // Windows 特有的路径是两个斜杠
+                resultList.add(filePath.replaceAll("\\\\", "/"));
+            } catch (Exception e) {
+                e.printStackTrace();
+                return MsgUtil.fail("解密失败", e);
+            }
+        }
+        return MsgUtil.success("解密成功", resultList);
+    }
+
+    @ApiOperation("自定义密钥加密字符串SM4")
+    @PostMapping("/encryptStringByUserKeySM4")
+    public MsgUtil<Object> encryptStringByUserKeySM4(@RequestParam("strData") String strData,
+                                                     @RequestParam(name = "key", required = false) String key) {
+        MsgUtil<String> checkMsg = checkKey(key);
+        if (!checkMsg.getFlag()) {
+            return MsgUtil.fail("请求失败", checkMsg.getData());
+        }
+        try {
+            String encryptString = SM4Util.encryption(strData, key);
+            return MsgUtil.success("加密成功", encryptString);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return MsgUtil.fail();
+        }
+    }
+
+    @ApiOperation("自定义密钥解密字符串SM4")
+    @PostMapping("/decryptStringByUserKeySM4")
+    public MsgUtil<Object> decryptStringByUserKeySM4(@RequestParam("strData") String strData,
+                                                     @RequestParam(name = "key", required = false) String key) {
+        MsgUtil<String> checkMsg = checkKey(key);
+        if (!checkMsg.getFlag()) {
+            return MsgUtil.fail("请求失败", checkMsg.getData());
+        }
+        try {
+            String encryptString = SM4Util.decrypt(strData, key);
+            return MsgUtil.success("解密成功", encryptString);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return MsgUtil.fail("解密失败", "密钥错误");
+        }
     }
 
 }

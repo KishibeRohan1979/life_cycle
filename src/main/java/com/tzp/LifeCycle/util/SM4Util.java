@@ -1,6 +1,8 @@
 package com.tzp.LifeCycle.util;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.Cipher;
@@ -13,123 +15,80 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Base64;
+import java.security.Security;
 
 /**
- * 加解密工具
- *
- * @author kangxvdong
+ * @author KangXvdong
  */
-public class EncryptionUtil {
+public class SM4Util {
 
-    /**
-     * 16/24/32字节的密钥，AES-128/AES-192/AES-256
-     */
-    public static final String SECRET_KEY = "D2NnM5+aD7RUhNRWJL8LwvDm";
+    static final String ALGORITHM_NAME = "SM4";
 
-    /**
-     * 加密数据
-     *
-     * @param data 原数据
-     * @return 加密文本
-     * @throws Exception 异常
-     */
-    public static String encryption(String data) throws Exception {
-        return encryption(data, SECRET_KEY);
-    }
+    static final String ALGORITHM_NAME_ECB_PADDING = "SM4/ECB/PKCS5Padding";
 
-    /**
-     * 解密文本
-     *
-     * @param encryptedText 原数据
-     * @return 原始文本
-     * @throws Exception 异常
-     */
-    public static String decrypt(String encryptedText) throws Exception {
-        return decrypt(encryptedText, SECRET_KEY);
-    }
+    static final String EPIDEMIC_KEY = "10aaf71cea12d5ea8590a995e0880de3";
 
-    /**
-     * 创建加密的 Cipher 对象
-     */
-    public static Cipher encryptionCipher(String key) throws Exception {
-        // 设置AES算法和加密模式
-        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
 
-        // 创建一个AES密钥
-        SecretKeySpec secretKeySpec;
-        if (StringUtils.isNotBlank(key)) {
-            secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
-        } else {
-            secretKeySpec = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), "AES");
-        }
-
-        // 初始化加密模式
-        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
-
-        return cipher;
-    }
-
-    /**
-     * 创建解密的 Cipher 对象
-     */
-    public static Cipher decryptCipher(String key) throws Exception {
-        // 设置AES算法和解密模式
-        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-
-        // 创建一个AES密钥
-        SecretKeySpec secretKeySpec;
-        if (StringUtils.isNotBlank(key)) {
-            secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
-        } else {
-            secretKeySpec = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), "AES");
-        }
-
-        // 初始化解密模式
-        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
-
-        return cipher;
-    }
-
-    /**
-     * 使用自定义的密钥加密
-     *
-     * @param data 需要加密的数据
-     * @param key 密钥
-     * @return 返回加密的字符
-     * @throws Exception 异常
-     */
-    public static String encryption(String data, String key) throws Exception {
-        // 设置AES算法和加密模式
+    public static String encryption(String str, String key) throws Exception {
         Cipher cipher = encryptionCipher(key);
-
-        // 执行加密
-        byte[] encryptedBytes = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
-
-        // 使用Base64编码将加密后的字节数组转换为字符串
-        return Base64.getEncoder().encodeToString(encryptedBytes);
+        // String -> byte[]
+        byte[] srcData = str.getBytes(StandardCharsets.UTF_8);
+        byte[] cipherArray = cipher.doFinal(srcData);
+        // byte[] -> hexString
+        return ByteUtils.toHexString(cipherArray);
     }
 
-    /**
-     * 解密
-     *
-     * @param encryptedText 加密的文本
-     * @param key 密钥
-     * @return 原始文本
-     * @throws Exception 异常
-     */
     public static String decrypt(String encryptedText, String key) throws Exception {
-        // 设置AES算法和解密模式
         Cipher cipher = decryptCipher(key);
 
-        // 将Base64编码的密文解码为字节数组
-        byte[] encryptedBytes = Base64.getDecoder().decode(encryptedText);
+        byte[] cipherData = ByteUtils.fromHexString(encryptedText);
+        byte[] decryptedData = cipher.doFinal(cipherData);
 
-        // 执行解密
-        byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+        return new String(decryptedData, StandardCharsets.UTF_8);
+    }
 
-        // 将解密后的字节数组转换为字符串
-        return new String(decryptedBytes, StandardCharsets.UTF_8);
+    /**
+     * 获取加密对象
+     * 如果给自定义 key 就用自定义 key，如果给空就用这个类默认的密钥
+     *
+     * @param key 密钥
+     * @return 返回加密对象
+     * @throws Exception 异常
+     */
+    public static Cipher encryptionCipher(String key) throws Exception {
+        Security.addProvider(new BouncyCastleProvider());
+        // 16进制字符串 -> byte[]
+        SecretKeySpec sm4Key;
+        if (StringUtils.isNotBlank(key))  {
+            sm4Key = new SecretKeySpec(ByteUtils.fromHexString(key), ALGORITHM_NAME);
+        } else {
+            sm4Key = new SecretKeySpec(ByteUtils.fromHexString(EPIDEMIC_KEY), ALGORITHM_NAME);
+        }
+        // 加密后的数组
+        Cipher cipher = Cipher.getInstance(ALGORITHM_NAME_ECB_PADDING, BouncyCastleProvider.PROVIDER_NAME);
+        cipher.init(Cipher.ENCRYPT_MODE, sm4Key);
+        return cipher;
+    }
+
+    /**
+     * 获取解密对象
+     * 如果给自定义 key 就用自定义 key，如果给空就用这个类默认的密钥
+     *
+     * @param key 密钥
+     * @return 返回解密对象
+     * @throws Exception 异常
+     */
+    public static Cipher decryptCipher(String key) throws Exception {
+        Security.addProvider(new BouncyCastleProvider());
+        SecretKeySpec sm4Key;
+        if (StringUtils.isNotBlank(key))  {
+            sm4Key = new SecretKeySpec(ByteUtils.fromHexString(key), ALGORITHM_NAME);
+        } else {
+            sm4Key = new SecretKeySpec(ByteUtils.fromHexString(EPIDEMIC_KEY), ALGORITHM_NAME);
+        }
+        Cipher cipher = Cipher.getInstance(ALGORITHM_NAME_ECB_PADDING, BouncyCastleProvider.PROVIDER_NAME);
+        cipher.init(Cipher.DECRYPT_MODE, sm4Key);
+        return cipher;
     }
 
     /**
@@ -262,11 +221,9 @@ public class EncryptionUtil {
         SnowFlakeUtil snowFlakeUtil = new SnowFlakeUtil(2, 1);
         String fileId = snowFlakeUtil.nextIdByString() + "-";
         // 创建存放解密文件的地址
-        Path decryptedFilePath = Paths.get(outputPath).resolve(fileId + encryptedFile.getOriginalFilename());
+        Path decryptedFilePath = Paths.get(outputPath).resolve(fileId + encryptedFile.getOriginalFilename());;
         decryptFileWrite(encryptedFile.getInputStream(), Files.newOutputStream(decryptedFilePath), key);
         return fileId + encryptedFile.getOriginalFilename();
     }
-
-
 
 }

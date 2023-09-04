@@ -161,14 +161,13 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- guava解决泛型擦除问题 -->
-        <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+        <!-- bcprov-jdk15on SM4加密的第三方开源包 -->
+        <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on -->
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>32.1.1-jre</version>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.70</version>
         </dependency>
-
 
     </dependencies>
 
